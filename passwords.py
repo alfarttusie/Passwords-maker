@@ -13,6 +13,8 @@ import unicodedata
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, as_completed
 from typing import Dict, Iterable, Iterator, List, Optional, Sequence, Set, Tuple
 
+FileName = prog = os.path.basename(sys.argv[0])
+
 
 def _maybe_tqdm(iterable, enable: bool, total: Optional[int] = None, desc: str = ""):
     if not enable:
@@ -37,39 +39,40 @@ class WordListMaker:
         DEFAULT_MIN_LENGTH = 4
         DEFAULT_MAX_LENGTH = 64
 
-        epilog = r"""
-Examples:
-  # Basic: combine two words and print
-  python tool.py -w hello,world -s
+        epilog = fr"""
+        Examples:
+        # Basic: combine two words and print
+        python {FileName} -w hello,world -s
 
-  # Save (gz compressed if path ends with .gz)
-  python tool.py -w hello,world -o out.txt.gz
+        # Save (gz compressed if path ends with .gz)
+        python {FileName} -w hello,world -o out.txt.gz
 
-  # Use joiners and custom numbers/symbols
-  python tool.py -w john,doe --joiners "-,_,." --numbers "1,12,123,2025" --symbols "!,$" -s
+        # Use joiners and custom numbers/symbols
+        python {FileName} -w john,doe --joiners "-,_,." --numbers "1,12,123,2025" --symbols "!,$" -s
 
-  # Masks control structure; placeholders: {base} {Base} {BASE} {camel} {num} {sym} {year}
-  python tool.py -w red,fox --mask "{base}{year}{sym}" --mask "{sym}{camel}{num}" -s
+        # Masks control structure; placeholders: {{base}} {{Base}} {{BASE}} {{camel}} {{num}} {{sym}} {{year}}
+        python {FileName} -w red,fox --mask "{{base}}{{year}}{{sym}}" --mask "{{sym}}{{camel}}{{num}}" -s
 
-  # Years as range / 'last:N'
-  python tool.py -w brand,name --years "2010-2015,last:3" -s
+        # Years as range / 'last:N'
+        python {FileName} -w brand,name --years "2010-2015,last:3" -s
 
-  # Filter by length & entropy (Shannon)
-  python tool.py -w hello,world --min-length 8 --max-length 16 --min-entropy 2.5 -s
+        # Filter by length & entropy (Shannon)
+        python {FileName} -w hello,world --min-length 8 --max-length 16 --min-entropy 2.5 -s
 
-  # Read words from file / stdin
-  python tool.py --word-file words.txt -s
-  cat words.txt | python tool.py -w - -s
+        # Read words from file / stdin
+        python {FileName} --word-file words.txt -s
+        cat words.txt | python {FileName} -w - -s
 
-  # Limit output and show progress
-  python tool.py -w a,b,c --max-count 1000 --progress -s
+        # Limit output and show progress
+        python {FileName} -w a,b,c --max-count 1000 --progress -s
 
-  # Parallel generation using processes (CPU-heavy rules)
-  python tool.py -w company,2025 --processes -t 8 -s
-"""
+        # Parallel generation using processes (CPU-heavy rules)
+        python {FileName} -w company,2025 --processes -t 8 -s
+        """
 
         p = argparse.ArgumentParser(
-            prog="wordlistmaker",
+            prog=os.path.basename(sys.argv[0]),
+
             formatter_class=argparse.RawDescriptionHelpFormatter,
             description=(
                 "Generate password variations from simple words by combining them with masks, "

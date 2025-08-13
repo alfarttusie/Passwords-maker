@@ -35,31 +35,31 @@ pip install tqdm
 ## Quick Start
 
 ```bash
-python tool.py -w hello,world -s
+python passwords.py -w hello,world -s
 ```
 
 Combines the words and generates multiple variations, printing them to the console.
 
 Save to a compressed file:
 ```bash
-python tool.py -w hello,world -o out.txt.gz -s
+python passwords.py -w hello,world -o out.txt.gz -s
 ```
 
 ---
 
 ## Input Methods
 
-- Single argument, comma-separated:
+- **Single argument, comma-separated:**
   ```bash
-  python tool.py -w john,doe,acme -s
+  python passwords.py -w john,doe,acme -s
   ```
-- From file:
+- **From file:**
   ```bash
-  python tool.py --word-file words.txt -s
+  python passwords.py --word-file words.txt -s
   ```
-- From STDIN:
+- **From STDIN:**
   ```bash
-  cat words.txt | python tool.py -w - -s
+  cat words.txt | python passwords.py -w - -s
   ```
 
 > The script combines the words into one or more **base strings** using permutations and joiners, then applies masks and transformations.
@@ -68,19 +68,19 @@ python tool.py -w hello,world -o out.txt.gz -s
 
 ## Key Options
 
-- Display:
+- **Display:**
   - `-s, --show` Print results to console.
   - `-o, --output PATH` Save results to file (supports `.gz`).
   - `--force` Overwrite output file if it exists.
   - `--progress` Show progress bar (requires `tqdm`).
 
-- Building strings:
+- **Building strings:**
   - `-w, --word` Base words (CSV) or `-` to read from STDIN.
   - `--word-file` File containing base words (one per line).
   - `--joiners` Join characters between words (CSV). Example: `"" ,-,_,.` (empty string = no joiner).
   - `--max-permutation-length` Max number of words to combine per candidate (default: all words).
 
-- Masks:
+- **Masks:**
   - `--mask` Can be repeated multiple times. Placeholders:
     - `{base}` Base word after transformations.
     - `{Base}` Capitalized.
@@ -90,7 +90,7 @@ python tool.py -w hello,world -o out.txt.gz -s
     - `{sym}` From symbols list.
     - `{year}` From years list.
 
-  Default masks if none specified:
+  **Default masks if none specified:**
   ```
   {base}{num}{sym}
   {base}{year}{sym}
@@ -100,23 +100,23 @@ python tool.py -w hello,world -o out.txt.gz -s
   {BASE}{sym}{num}
   ```
 
-- Numbers/Symbols/Years:
+- **Numbers/Symbols/Years:**
   - `--numbers "1,12,123,2025,007"` (empty element `""` means none).
   - `--symbols "!,@,#,$"` (empty element allowed).
   - `--years "2010-2015,last:3,2025"` ranges, `last:N`, or single years.
 
-- Case & Leet:
+- **Case & Leet:**
   - `--cases "original,lower,upper,title,invert"`
   - `--leet "a=@,4;s=$,5;e=3;i=1;o=0"` Format: semicolon-separated; each `char=replacementCSV`.
   - `--leet-max-expansions 4` Cap expansions to prevent explosion.
 
-- Filters & Limits:
+- **Filters & Limits:**
   - `--min-length 4`, `--max-length 64`
   - `--min-entropy 0.0` Minimum Shannon entropy (0 to disable).
   - `--blacklist path.txt` Exclude passwords found in file.
   - `--max-count N` Stop after generating N results.
 
-- Parallelism & Logging:
+- **Parallelism & Logging:**
   - `-t, --threads 4` Number of workers.
   - `--processes` Use Processes instead of Threads (better for CPU-heavy rules).
   - `--log-level info|debug|warning|error`
@@ -125,40 +125,81 @@ python tool.py -w hello,world -o out.txt.gz -s
 
 ## Examples
 
-**1) Custom masks and joiners:**
+**1) Basic combination and display:**
 ```bash
-python tool.py -w red,fox --joiners ",-,_"
-  --mask "{base}{year}{sym}" --mask "{sym}{camel}{num}"
-  --years "2018-2020,last:2" --numbers "1,12,123" --symbols "!,$"
-  -s
+python passwords.py -w hello,world -s
 ```
 
-**2) Length & entropy filter with max count:**
+**2) Save to gzip file:**
 ```bash
-python tool.py -w brand,name --min-length 8 --max-length 16 --min-entropy 2.5 --max-count 500 -s
+python passwords.py -w hello,world -o out.txt.gz -s
 ```
 
-**3) Use processes for faster heavy workloads:**
+**3) Custom joiners and numbers/symbols:**
 ```bash
-python tool.py -w hello,world,test --processes -t 8 -o out.txt.gz --progress
+python passwords.py -w john,doe --joiners "-,_,." --numbers "1,12,123,2025" --symbols "!,$" -s
 ```
 
-**4) Exclude common passwords (Blacklist):**
+**4) Custom masks:**
 ```bash
-python tool.py -w qwerty,admin --blacklist top1000.txt -s
+python passwords.py -w red,fox --mask "{base}{year}{sym}" --mask "{sym}{camel}{num}" -s
+```
+
+**5) Years as range or last:N:**
+```bash
+python passwords.py -w brand,name --years "2010-2015,last:3" -s
+```
+
+**6) Filter by length & entropy:**
+```bash
+python passwords.py -w hello,world --min-length 8 --max-length 16 --min-entropy 2.5 -s
+```
+
+**7) Read words from file:**
+```bash
+python passwords.py --word-file words.txt -s
+```
+
+**8) Read words from STDIN:**
+```bash
+cat words.txt | python passwords.py -w - -s
+```
+
+**9) Limit output and show progress:**
+```bash
+python passwords.py -w a,b,c --max-count 1000 --progress -s
+```
+
+**10) Parallel generation with processes:**
+```bash
+python passwords.py -w company,2025 --processes -t 8 -s
+```
+
+**11) CamelCase examples:**
+```bash
+python passwords.py -w foo_bar,hello-world --mask "{camel}" -s
+```
+
+**12) Use blacklist to exclude results:**
+```bash
+python passwords.py -w qwerty,admin --blacklist blacklist.txt -s
+```
+
+**13) Generate with only numbers appended:**
+```bash
+python passwords.py -w pass --mask "{base}{num}" --symbols "" --years "" -s
 ```
 
 ---
 
 ## Tips
 
-- More words/joiners/masks and substitutions = more output size.
+- More words/joiners/masks and substitutions = more output size.  
   Use:
   - `--max-count` to limit,
   - `-o out.txt.gz` for compressed output,
   - `--processes -t N` to speed up,
   - `--progress` to monitor.
-
 - Be cautious with memory: output is streamed, so prefer file output for large runs.
 
 ---
