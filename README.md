@@ -222,7 +222,7 @@ python passwords.py -w pass --mask "{base}{num}" --symbols "" --years "" -s
 
 ## License
 
-Insert your license here (MIT/Apache-2.0/GPL…).
+MIT.
 
 ---
 
